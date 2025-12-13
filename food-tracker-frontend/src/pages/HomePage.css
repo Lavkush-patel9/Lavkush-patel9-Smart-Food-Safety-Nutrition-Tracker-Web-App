@@ -1,0 +1,271 @@
+/* 🌈 Global */
+.home-container {
+  font-family: "Poppins", sans-serif;
+  color: #333;
+  background-color: #f7f9fc;
+  overflow-x: hidden;
+}
+
+/* 🔹 Navbar */
+header.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(90deg, #19232e, #404840);
+  padding: 15px 40px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  color: rgb(0, 0, 0);
+}
+
+.logo {
+  font-size: 20px;
+  color: white;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 25px;
+  align-items: center;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: rgb(208, 218, 111);
+  font-weight: 500;
+  font-weight: bold;
+  transition: color 0.3s;
+}
+
+.nav-links a:hover {
+  color: #ffe600;
+}
+
+.login-btn {
+  background: rgb(149, 118, 39);
+  color: #ffffff;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.login-btn:hover {
+  background: #0b1825;
+}
+
+/* 🔹 Hero Section */
+.hero {
+  background: url("https://www.freepik.com/free-vector/watercolor-world-vegetarian-day-background_30593020.htm#fromView=search&page=1&position=31&uuid=deb7c1a9-7c83-4644-b127-e702b965fda4&query=Nutrition+background+free")
+    center/cover no-repeat;
+  height: 90vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: white;
+  position: relative;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(96, 91, 91, 0.564);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 700px;
+}
+
+.hero h2 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+
+.hero p {
+  font-size: 1.1rem;
+  margin-bottom: 30px;
+}
+
+.cta-btn {
+  background: #67b26f;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.cta-btn:hover {
+  background: #5aa962;
+}
+
+/* 🔹 Features Section */
+.features {
+  padding: 80px 10%;
+  background: #fff;
+  text-align: center;
+}
+
+.features h2 {
+  font-size: 2rem;
+  margin-bottom: 40px;
+  color: #2e80de;
+}
+
+.feature-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 25px;
+}
+
+.card {
+  background: #f8faff;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  transition: transform 0.3s;
+  cursor: pointer;
+  
+}
+.card p {
+  color: #555;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  background-color: #35b6bd;
+}
+
+.card span {
+  font-size: 2rem;
+}
+
+.card h3 {
+  margin: 15px 0 10px;
+  color: #333;
+}
+/* 🔹 About Section Styling */
+.about {
+  background-color: #ffffff;
+  border-radius: 15px;
+  padding: 50px 30px;
+  margin: 60px auto;
+  max-width: 1100px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.about h2 {
+  color: #007bff;
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.about-intro {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  margin-bottom: 40px;
+  color: #444;
+}
+
+.about-details h3,
+.tech-stack h3 {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 1.4rem;
+}
+
+/* Cards */
+.about-cards, .tech-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.about-card, .tech-card {
+  background: #f9fbfd;
+  border: 1px solid #e3e8ef;
+  border-radius: 12px;
+  padding: 25px 15px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.about-card:hover, .tech-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+.about-card span, .tech-card span {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.about-card h4, .tech-card h4 {
+  color: #007bff;
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+}
+
+.about-card p, .tech-card p {
+  color: #555;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+
+/* 🔹 CTA Section */
+.cta {
+  background: linear-gradient(90deg, #67b26f, #4a90e2);
+  color: white;
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.cta h2 {
+  margin-bottom: 20px;
+}
+
+/* 🔹 Footer */
+.footer {
+  background: #222;
+  color: #ccc;
+  text-align: center;
+  padding: 25px 10px;
+  font-size: 0.9rem;
+}
+
+.footer-links a {
+  color: #67b26f;
+  text-decoration: none;
+  margin: 0 5px;
+}
+
+.footer-links a:hover {
+  text-decoration: underline;
+}
+
+/* 📱 Responsive */
+@media (max-width: 768px) {
+  .nav-links {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .hero h2 {
+    font-size: 1.8rem;
+  }
+}

@@ -1,0 +1,71 @@
+############################
+# Node.js (Backend + Frontend)
+############################
+node_modules/
+npm-debug.log*
+yarn.lock
+pnpm-lock.yaml
+
+############################
+# React build files
+############################
+build/
+dist/
+
+############################
+# Python (OCR Microservice)
+############################
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+############################
+# Flask
+############################
+instance/
+.webassets-cache
+
+############################
+# Environment & Secrets
+############################
+.env
+.env.local
+.env.development
+.env.production
+
+############################
+# Database
+############################
+*.sql
+*.sqlite3
+
+############################
+# Logs
+############################
+logs/
+*.log
+
+############################
+# IDE / Editor
+############################
+.vscode/
+.idea/
+*.swp
+
+############################
+# OS files
+############################
+.DS_Store
+Thumbs.db
+desktop.ini
+
+############################
+# Git
+############################
+.git/
+.gitignore.bak
+

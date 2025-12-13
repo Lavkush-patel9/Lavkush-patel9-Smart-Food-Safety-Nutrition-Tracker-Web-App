@@ -1,0 +1,250 @@
+/* food-tracker-frontend/src/pages/user/UserProfile.css */
+
+/* ---------- Main Container ---------- */
+.profile-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  background: #f4f7fb;
+  font-family: 'Poppins', sans-serif;
+  position: relative;
+  padding: 40px 20px;
+}
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -290px;
+  width: 250px;
+  height: 100%;
+  background: #082a61;
+  color: #fff;
+  padding: 20px;
+  transition: left 0.3s ease;
+  z-index: 10;
+  box-shadow: 3px 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar.open {
+  left: 0;
+}
+
+.sidebar h2 {
+  margin-bottom: 20px;
+  font-size: 1.4rem;
+  text-align: center;
+  border-bottom: 1px solid #334155;
+  padding-bottom: 10px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar ul li {
+  padding: 12px 10px;
+  margin: 8px 0;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: 0.3s;
+}
+
+.sidebar ul li:hover {
+  background: #334155;
+}
+
+.sidebar ul li.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.3rem;
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  cursor: pointer;
+}
+
+/* ---------- Sidebar Toggle ---------- */
+.open-btn {
+  position: fixed;
+  left: 20px;
+  top: 20px;
+  background: #1e293b;
+  color: white;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  z-index: 5;
+}
+
+.open-btn:hover {
+  background: #334155;
+}
+
+/* ---------- Profile Card ---------- */
+.profile-card {
+  background: white;
+  width: 100%;
+  max-width: 450px;
+  padding: 35px 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  margin-left: auto;
+  margin-right: auto;
+  transition: all 0.3s ease;
+}
+
+.profile-card h2 {
+  text-align: center;
+  color: #1e293b;
+  margin-bottom: 25px;
+}
+
+/* ---------- Profile Picture ---------- */
+.profile-pic-container {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.profile-pic {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  /* border: 3px solid #2563eb; */
+  margin-bottom: 10px;
+}
+
+.upload-label {
+  display: inline-block;
+  color: #2563eb;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-top: 5px;
+}
+
+/* ---------- Form Inputs ---------- */
+.form-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 18px;
+  background: #f1f5f9;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.form-group .icon {
+  margin-right: 10px;
+  color: #2563eb;
+  font-size: 1.1rem;
+}
+
+.form-group input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 1rem;
+  color: #1e293b;
+}
+
+/* ---------- Buttons ---------- */
+.btn-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.save-btn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.save-btn:hover {
+  background: #1d4ed8;
+}
+
+.delete-btn {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.delete-btn:hover {
+  background: #b91c1c;
+}
+
+/* ---------- Responsive Design ---------- */
+@media (max-width: 768px) {
+  .profile-card {
+    width: 95%;
+  }
+  .open-btn {
+    left: 10px;
+    top: 10px;
+    padding: 8px 10px;
+  }
+}
+
+/* ---------- Edit Mode Styling ---------- */
+.readonly {
+  background: transparent;
+  color: #475569;
+  cursor: not-allowed;
+}
+
+.edit-toggle {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.edit-btn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.edit-btn:hover {
+  background: #1d4ed8;
+}
+
+.save-btn {
+  background: #059669;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.save-btn:hover {
+  background: #047857;
+}
+
