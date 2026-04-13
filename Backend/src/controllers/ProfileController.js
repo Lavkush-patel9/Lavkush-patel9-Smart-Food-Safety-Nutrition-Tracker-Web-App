@@ -1,4 +1,4 @@
-// controllers/ProfileController.js
+// Backend/src/controllers/ProfileController.js
 const db = require("../config/db");
 const path = require("path");
 const fs = require("fs");
@@ -6,8 +6,10 @@ const fs = require("fs");
 exports.getProfile = async (req, res) => {
   try {
     const userId = req.user.id; // from authMiddleware (decoded JWT)
+    
+    // ✅ age और health_condition को SELECT क्वेरी में जोड़ा गया
     const [rows] = await db.query(
-      "SELECT id, username AS name, email, role, created_at, profile_Image FROM users WHERE id = ? limit 1",
+      "SELECT id, username AS name, email, role, created_at, profile_Image, age, health_condition FROM users WHERE id = ? limit 1",
       [userId]
     );
 
@@ -25,12 +27,13 @@ exports.getProfile = async (req, res) => {
 exports.updateProfile = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { username, email } = req.body;
+    // ✅ age और health_condition को req.body से निकाला गया
+    const { username, email, age, health_condition } = req.body;
     let imagePath = null;
+
     // 🔹 If new image uploaded
     if (req.file) {
       imagePath = `/uploads/${req.file.filename}`;
-      // optional: delete old image if exists
       const [oldImg] = await db.query(
         "SELECT profile_image FROM users WHERE id = ?",
         [userId]
@@ -41,22 +44,21 @@ exports.updateProfile = async (req, res) => {
       }
     }
 
-    // 🔹 Update DB
+    // 🔹 Update DB (age और health_condition को शामिल करते हुए)
     if (imagePath) {
       await db.query(
-        "UPDATE users SET username = ?, email = ?, profile_image = ? WHERE id = ?",
-        [username, email, imagePath, userId]
+        "UPDATE users SET username = ?, email = ?, profile_image = ?, age = ?, health_condition = ? WHERE id = ?",
+        [username, email, imagePath, age, health_condition, userId]
       );
     } else {
-      await db.query("UPDATE users SET username = ?, email = ? WHERE id = ?", [
-        username,
-        email,
-        userId,
-      ]);
+      await db.query(
+        "UPDATE users SET username = ?, email = ?, age = ?, health_condition = ? WHERE id = ?",
+        [username, email, age, health_condition, userId]
+      );
     }
     res.json({ message: "Profile updated successfully" });
   } catch (error) {
-    console.error(error);
+    console.error("error updating profile:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -65,8 +67,8 @@ exports.deleteProfile = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    // Delete user's logs first (to maintain referential integrity)
-    await db.query("DELETE FROM logs WHERE user_id = ?", [userId]);
+    // Delete user's logs first
+    await db.query("DELETE FROM user_logs WHERE user_id = ?", [userId]);
 
     // Then delete user
     await db.query("DELETE FROM users WHERE id = ?", [userId]);

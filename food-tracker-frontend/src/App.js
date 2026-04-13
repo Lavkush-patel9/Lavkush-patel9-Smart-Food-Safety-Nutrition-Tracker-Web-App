@@ -5,13 +5,22 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
+import Contact from "./pages/Contact";
+
+// 🔐 Security
 import ProtectedRoute from "./components/ProtectedRoute";
+
+// 🔹 Layout
 import Layout from "./components/Layout";
 
 // 🔹 User Components
 import Dashboard from "./pages/user/UserDashboard";
 import ScanPage from "./pages/ScanPage";
 import ProfilePage from "./pages/user/UserProfile";
+import UserHistory from "./pages/user/UserHistory";
+import ProductDetail from "./pages/user/ProductDetail";
 
 // 🔹 Admin Components
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -20,42 +29,32 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminLogs from "./pages/admin/AdminLogs";
 import AdminProfile from "./pages/admin/AdminProfile";
+import AdminContact from "./pages/admin/AdminContact";
 
 function App() {
   return (
     <BrowserRouter>
-      <MainRoutes />
+      <RoutesWrapper />
     </BrowserRouter>
   );
 }
 
-function MainRoutes() {
-  // const navigate = useNavigate();
-
-  // // ✅ Redirect on startup
-  // React.useEffect(() => {
-  //   const token = localStorage.getItem("token");
-  //   const role = localStorage.getItem("role");
-
-  //   if (token && role === "admin") {
-  //     navigate("/admin/dashboard");
-  //   } else if (token && role === "user") {
-  //     navigate("/dashboard");
-  //   }
-  // }, [navigate]);
-
+function RoutesWrapper() {
   return (
     <Routes>
-      {/* 🏠 Public Routes */}
+      {/* 🌍 PUBLIC ROUTES */}
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/contact" element={<Contact />} />
 
-      {/* 👤 User Protected Routes (Layout with nested routes) */}
+      {/* 👤 USER ROUTES (SAFE + SCALABLE) */}
       <Route
-        path="/dashboard"
+        path="/dashboard/*"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={["user", "admin"]}>
             <Layout />
           </ProtectedRoute>
         }
@@ -63,13 +62,25 @@ function MainRoutes() {
         <Route index element={<Dashboard />} />
         <Route path="scan" element={<ScanPage />} />
         <Route path="userprofile" element={<ProfilePage />} />
+        <Route path="history" element={<UserHistory />} />
+        <Route path="product/:id" element={<ProductDetail />} />
       </Route>
 
-      {/* ⚙️ Admin Protected Routes */}
+      {/* ⚙️ ADMIN ROUTES (SAFE GROUPING) */}
+      <Route
+        path="/admin/*"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <></>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* 👇 ADMIN PAGES (kept SAME to avoid breaking) */}
       <Route
         path="/admin/dashboard"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={["admin"]}>
             <AdminDashboard />
           </ProtectedRoute>
         }
@@ -77,7 +88,7 @@ function MainRoutes() {
       <Route
         path="/admin/add-product"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={["admin"]}>
             <AdminProductAdd />
           </ProtectedRoute>
         }
@@ -85,7 +96,7 @@ function MainRoutes() {
       <Route
         path="/admin/users"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={["admin"]}>
             <AdminUsers />
           </ProtectedRoute>
         }
@@ -93,7 +104,7 @@ function MainRoutes() {
       <Route
         path="/admin/products"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={["admin"]}>
             <AdminProducts />
           </ProtectedRoute>
         }
@@ -101,7 +112,7 @@ function MainRoutes() {
       <Route
         path="/admin/logs"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={["admin"]}>
             <AdminLogs />
           </ProtectedRoute>
         }
@@ -109,13 +120,21 @@ function MainRoutes() {
       <Route
         path="/admin/profile"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={["admin"]}>
             <AdminProfile />
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/admin/contact"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <AdminContact />
+          </ProtectedRoute>
+        }
+      />
 
-      {/* ❌ 404 Fallback */}
+      {/* ❌ 404 PAGE */}
       <Route
         path="*"
         element={

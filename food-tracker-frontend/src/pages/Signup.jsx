@@ -8,20 +8,26 @@ function Signup() {
   const [username, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("user"); // default role = user
-  const [secretKey, setSecretKey] = useState(""); // ✅ added
+  const [role, setRole] = useState("user"); 
+  const [secretKey, setSecretKey] = useState(""); 
   const [error, setError] = useState("");
+
+  // ✅ New Personalized States
+  const [age, setAge] = useState("");
+  const [healthCondition, setCondition] = useState("none");
 
   const handleSignup = async (e) => {
     e.preventDefault();
 
     try {
-      // ✅ Send secretKey also if admin selected
+      // ✅ API कॉल में अब age और health_condition भी भेजे जा रहे हैं
       await API.post("/auth/signup", {
         username,
         email,
         password,
         role,
+        age: parseInt(age), // Ensure it's a number
+        health_condition: healthCondition,
         secretKey: role === "admin" ? secretKey : undefined,
       });
 
@@ -31,6 +37,8 @@ function Signup() {
       setPassword("");
       setRole("user");
       setSecretKey("");
+      setAge("");
+      setCondition("none");
       setError("");
       navigate("/login");
     } catch (err) {
@@ -53,8 +61,7 @@ function Signup() {
           onChange={(e) => setName(e.target.value)}
           required
         />
-        <br />
-        <br />
+        <br /><br />
 
         <input
           type="email"
@@ -63,8 +70,7 @@ function Signup() {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-        <br />
-        <br />
+        <br /><br />
 
         <input
           type="password"
@@ -73,8 +79,29 @@ function Signup() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <br />
-        <br />
+        <br /><br />
+
+        {/* ✅ New Age Field */}
+        <label>Age: </label>
+        <input
+          type="number"
+          placeholder="Enter Your Age"
+          value={age}
+          onChange={(e) => setAge(e.target.value)}
+          required
+        />
+        <br /><br />
+
+        {/* ✅ New Health Condition Dropdown */}
+        <label>Health Condition: </label>
+        <select value={healthCondition} onChange={(e) => setCondition(e.target.value)}>
+          <option value="none">Normal (No Health Issues)</option>
+          <option value="diabetic">Diabetes (Sugar Patient)</option>
+          <option value="high_bp">High Blood Pressure (BP)</option>
+          <option value="weight_loss">Focus on Weight Loss</option>
+          <option value="kidney_patient">Kidney Issues</option>
+        </select>
+        <br /><br />
 
         {/* ✅ Role Dropdown */}
         <label>Select Role: </label>
@@ -82,8 +109,7 @@ function Signup() {
           <option value="user">User</option>
           <option value="admin">Admin</option>
         </select>
-        <br />
-        <br />
+        <br /><br />
 
         {/* ✅ Secret Key Field (Only for Admin) */}
         {role === "admin" && (
@@ -95,8 +121,7 @@ function Signup() {
               onChange={(e) => setSecretKey(e.target.value)}
               required
             />
-            <br />
-            <br />
+            <br /><br />
           </>
         )}
 
@@ -107,7 +132,7 @@ function Signup() {
         onClick={() => navigate("/login")}
         style={{ cursor: "pointer", marginTop: 10 }}
       >
-        Already have an account
+        Already have an account? Login
       </p>
     </div>
   );

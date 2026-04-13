@@ -1,5 +1,5 @@
 // food-tracker-frontend/src/pages/ScanPage.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 function ScanPage() {
@@ -9,6 +9,29 @@ function ScanPage() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
   const [barcode, setBarcode] = useState("");
+
+  // 🔹 NEW: User Profile State
+  const [userProfile, setUserProfile] = useState(null);
+
+  // 🔹 Fetch user profile on load
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await axios.get("http://127.0.0.1:5000/api/user/profile", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        setUserProfile(res.data);
+        console.log("👤 User Profile:", res.data);
+      } catch (err) {
+        console.error("Profile fetch error:", err);
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   // 🔹 File change handler
   const handleFileChange = (e) => {
@@ -43,6 +66,11 @@ function ScanPage() {
       console.log("📦 Backend Response:", res.data);
       setResult(res.data);
       setError("");
+
+      // 🔹 NEW: Alerts log
+      if (res.data.alerts) {
+        console.log("⚠ Alerts:", res.data.alerts);
+      }
     } catch (err) {
       console.error("❌ Upload Error:", err);
       setError(
@@ -79,9 +107,30 @@ function ScanPage() {
     VitaminC: 90,
   };
 
+  // 🔹 NEW: Dynamic Limits based on user condition
+  const getDynamicLimits = () => {
+    let limits = { ...nutrientLimits };
+
+    if (userProfile?.health_conditions) {
+      const conditions = userProfile.health_conditions;
+
+      if (conditions.includes("diabetes")) {
+        limits.Sugar = 25;
+      }
+
+      if (conditions.includes("hypertension")) {
+        limits.Sodium = 1500;
+      }
+    }
+
+    return limits;
+  };
+
+  const dynamicLimits = getDynamicLimits();
+
   // 🔹 Status based on limit
   const getStatus = (key, value) => {
-    const limit = nutrientLimits[key];
+    const limit = dynamicLimits[key];
     if (!limit || isNaN(value)) return { text: "N/A", color: "gray" };
     const percent = (value / limit) * 100;
     if (percent < 30) return { text: "Good", color: "green" };
@@ -116,34 +165,20 @@ function ScanPage() {
 
   const product = getProductInfo();
 
-  // 🔹 Calculate health score
-  function calculateHealthScore(nutrients) {
-    const limits = {
-      calories: 2000,
-      sugar: 50,
-      protein: 60,
-      carbs: 300,
-      fat: 70,
-      fiber: 30,
-      sodium: 2300,
-      cholesterol: 300,
-    };
+  // 🔹 Personalized Health Score
+  // 🔥 FINAL HEALTH SCORE + SUGGESTION SYSTEM
 
-    let score = 100;
-    const bads = ["calories", "sugar", "fat", "sodium", "cholesterol"];
-    bads.forEach((key) => {
-      if (nutrients[key] && nutrients[key] > limits[key] * 0.2) score -= 10;
-    });
+// // 🔥 FINAL HEALTH SCORE
+// const healthScore = product ? calculateHealthScore(product) : null;
 
-    const goods = ["protein", "fiber"];
-    goods.forEach((key) => {
-      if (nutrients[key] && nutrients[key] > limits[key] * 0.05) score += 5;
-    });
+// // ✅ 🔥 FINAL SUGGESTION FUNCTION
+// const suggestion = healthScore !== null ? getFoodSuggestion(healthScore) : null;
 
-    return Math.min(100, Math.max(0, score));
-  }
-
-  const healthScore = product ? calculateHealthScore(product) : null;
+// // // ✅ 🔥 NUTRIENT BASED ADVICE
+// const adviceList = product ? getNutrientAdvice(product) : [];
+const healthScore = result?.health_score ?? null;
+const suggestion = result?.suggestion ?? null;
+const adviceList = result?.adviceList ?? [];
 
   // 🔹 UI
   return (
@@ -252,6 +287,28 @@ function ScanPage() {
             textAlign: "left",
           }}
         >
+          {/* 🔹 Alerts UI */}
+          {result?.alerts && result.alerts.length > 0 && (
+            <div
+              style={{
+                background: "#fee2e2",
+                padding: "15px",
+                borderRadius: "8px",
+                marginBottom: "20px",
+                border: "1px solid #dc2626",
+              }}
+            >
+              <h4 style={{ color: "#b91c1c" }}>⚠ Health Alerts</h4>
+              <ul>
+                {result.alerts.map((alert, i) => (
+                  <li key={i} style={{ color: "#7f1d1d" }}>
+                    {typeof alert === "object" ? alert.message : alert}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           <h3 style={{ color: "#1e3a8a", marginBottom: "10px" }}>
             📦 Product Info
           </h3>
@@ -268,9 +325,9 @@ function ScanPage() {
           <p>
             <strong>Name:</strong> {product.name}
           </p>
-          <p>
+          {/* <p>
             <strong>Brand:</strong> {product.brand}
-          </p>
+          </p> */}
           <p>
             <strong>Ingredients:</strong> {product.ingredients}
           </p>
@@ -278,6 +335,7 @@ function ScanPage() {
           <h3 style={{ color: "#1e3a8a", marginTop: "20px" }}>
             🥗 Nutrition Details
           </h3>
+
           <table
             style={{
               width: "100%",
@@ -321,7 +379,7 @@ function ScanPage() {
               ].map((key) => {
                 const label = key.charAt(0).toUpperCase() + key.slice(1);
                 const value = product[key];
-                const limit = nutrientLimits[label] || "N/A";
+                const limit = dynamicLimits[label] || "N/A";
                 const { text, color } = getStatus(label, value);
                 const percent =
                   limit && !isNaN(value)
@@ -356,22 +414,42 @@ function ScanPage() {
           <h3 style={{ color: "#1e3a8a", marginTop: "25px" }}>
             💯 Overall Health Score
           </h3>
-          <p
-            style={{
-              fontSize: "24px",
-              textAlign: "center",
-              color:
-                healthScore >= 80
-                  ? "#16a34a"
-                  : healthScore >= 60
-                  ? "#f59e0b"
-                  : "#dc2626",
-              fontWeight: "bold",
-              marginTop: "10px",
-            }}
-          >
-            {healthScore}/100
-          </p>
+          {healthScore !== null && (
+            <p
+              style={{
+                fontSize: "24px",
+                textAlign: "center",
+                color:
+                  healthScore >= 80
+                    ? "#16a34a"
+                    : healthScore >= 60
+                    ? "#f59e0b"
+                    : "#dc2626",
+                fontWeight: "bold",
+                marginTop: "10px",
+              }}
+            >
+              {healthScore}/100
+            </p>
+          )}
+          {/* ✅ 🔥 ADD THIS HERE */}
+          {suggestion && (
+            <p style={{ color: suggestion.color, fontWeight: "bold" }}>
+              {suggestion.text}
+            </p>
+          )}
+
+          {/* ✅ 🔥 ADD THIS ALSO */}
+          {adviceList.length > 0 && (
+            <div style={{ marginTop: "15px" }}>
+              <h4>💡 Health Advice</h4>
+              <ul>
+                {adviceList.map((a, i) => (
+                  <li key={i}>{a}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       )}
     </div>

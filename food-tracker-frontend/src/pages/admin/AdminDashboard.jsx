@@ -79,7 +79,7 @@ export default function AdminDashboard() {
   const handleDeleteIncomplete = async () => {
     if (
       !window.confirm(
-        "क्या आप सभी incomplete products को delete करना चाहते हैं?"
+        "क्या आप सभी incomplete products को delete करना चाहते हैं?",
       )
     )
       return;
@@ -215,6 +215,9 @@ export default function AdminDashboard() {
               <div style={linkStyle} onClick={() => navigate("/admin/logs")}>
                 📜 Logs
               </div>
+              <div style={linkStyle} onClick={() => navigate("/admin/contact")}>
+                📩 Contact Messages
+              </div>
             </div>
           </div>
         )}
@@ -267,7 +270,7 @@ export default function AdminDashboard() {
             <thead>
               <tr style={{ background: "#f3f3f3" }}>
                 <th style={thStyle}>Name</th>
-                <th style={thStyle}>Brand</th>
+                {/* <th style={thStyle}>Brand</th> */}
                 <th style={thStyle}>Calories</th>
                 <th style={thStyle}>Carbs</th>
                 <th style={thStyle}>Sugar</th>
@@ -279,7 +282,7 @@ export default function AdminDashboard() {
               {products.map((p) => (
                 <tr key={p.id}>
                   <td style={tdStyle}>{p.name}</td>
-                  <td style={tdStyle}>{p.brand}</td>
+                  {/* <td style={tdStyle}>{p.brand}</td> */}
                   <td style={tdStyle}>{p.calories}</td>
                   <td style={tdStyle}>{p.carbs}</td>
                   <td style={tdStyle}>{p.sugar}</td>

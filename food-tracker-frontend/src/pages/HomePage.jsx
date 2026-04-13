@@ -181,9 +181,32 @@ const HomePage = () => {
       {/* 🔹 Footer */}
       <footer className="footer">
         <p>© 2025 Smart Food Safety & Nutrition Tracker</p>
+
         <div className="footer-links">
-          <a href="#privacy">Privacy Policy</a> |
-          <a href="#terms"> Terms of Use</a> |<a href="#contact"> Contact Us</a>
+          <span
+            onClick={() => navigate("/privacy")}
+            style={{ cursor: "pointer" }}
+          >
+            Privacy Policy
+          </span>
+
+          {" | "}
+
+          <span
+            onClick={() => navigate("/terms")}
+            style={{ cursor: "pointer" }}
+          >
+            Terms of Use
+          </span>
+
+          {" | "}
+
+          <span
+            onClick={() => navigate("/contact")}
+            style={{ cursor: "pointer" }}
+          >
+            Contact Us
+          </span>
         </div>
       </footer>
     </div>

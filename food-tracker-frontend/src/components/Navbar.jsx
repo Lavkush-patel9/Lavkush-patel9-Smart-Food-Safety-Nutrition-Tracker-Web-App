@@ -1,99 +1,72 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  FaBell,
-  FaMoon,
-  FaSun,
-  FaBars,
-  FaSearch,
-  FaQrcode,
-  FaUser,
-} from "react-icons/fa";
-import "../components/Navbar.css";
+import { FaBell, FaMoon, FaSun, FaQrcode, FaUser } from "react-icons/fa";
+import API from "../services/api"; // ✅ Axios service का इस्तेमाल करें
+import "./Navbar.css";
 
 function Navbar() {
   const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const searchRef = useRef(null);
 
-  // 🌙 Dark Mode Toggle
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
-    document.body.classList.toggle("dark-mode", !darkMode);
+    document.body.classList.toggle("dark-mode");
   };
 
-  // 🔔 Dummy notifications
-  const notifications = [
-    "Your scan result is ready",
-    "Profile updated successfully",
-    "New food item added to database",
-  ];
+  const handleSearch = async (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
 
-  // 🔍 Dummy search (temporary)
-  const handleSearch = (e) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-
-    if (query.trim() === "") {
+    if (!value.trim()) {
       setSearchResults([]);
-    } else {
-      setSearchResults([
-        { id: 1, name: "Apple", image: "/images/apple.png" },
-        { id: 2, name: "Banana", image: "/images/banana.png" },
-        { id: 3, name: "Oats", image: "/images/oats.png" },
-      ]);
+      return;
+    }
+
+    try {
+      // ✅ baseURL (127.0.0.1) का उपयोग करें
+      const res = await API.get(`/products/search?query=${value.trim()}`);
+      setSearchResults(Array.isArray(res.data) ? res.data : []);
+    } catch (error) {
+      console.error("Search error:", error);
+      setSearchResults([]);
     }
   };
 
-  // 🔄 Close dropdowns when clicking outside
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (
-        !e.target.closest(".sf-notification-wrapper") &&
-        !e.target.closest(".sf-notification-dropdown")
-      ) {
-        setShowNotifications(false);
-      }
-      if (!e.target.closest(".sf-search-box")) {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
         setSearchResults([]);
       }
     };
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
-    <nav className={`sf-navbar ${darkMode ? "dark" : ""}`}>
-      {/* Left: Title */}
+    <nav className="sf-navbar">
       <div className="sf-nav-left" onClick={() => navigate("/dashboard")}>
-        <h2 className="sf-nav-title">Smart Food Tracker</h2>
+        <h2 className="sf-nav-title">SmartFood</h2>
       </div>
 
-      {/* Center: Search Box */}
-      <div className={`sf-nav-center ${showMenu ? "active" : ""}`}>
-        <div className="sf-search-box">
-          <FaSearch className="sf-search-icon" />
-          <input
-            type="text"
-            placeholder="Search foods..."
-            value={searchQuery}
-            onChange={handleSearch}
-          />
-        </div>
-
-        {/* Search Results */}
+      <div ref={searchRef} className="sf-nav-center">
+        <input
+          type="text"
+          placeholder="Search foods..."
+          value={searchQuery}
+          onChange={handleSearch}
+        />
         {searchResults.length > 0 && (
           <div className="sf-search-results">
             {searchResults.map((item) => (
-              <div
-                key={item.id}
-                className="sf-result-item"
-                onClick={() => navigate(`/product/${item.id}`)}
-              >
-                <img src={item.image} alt={item.name} />
+              <div key={item.id} className="sf-result-item" onClick={() => {
+                navigate(`/dashboard/product/${item.id || item._id}`)
+                setSearchResults([]);
+                setSearchQuery("");
+              }}>
+                {/* <img src={item.image_url || "https://placeholder.com"} alt={item.name} /> */}
                 <span>{item.name}</span>
               </div>
             ))}
@@ -101,56 +74,21 @@ function Navbar() {
         )}
       </div>
 
-      {/* Right: Buttons */}
       <div className="sf-nav-right">
-        {/* Scan Button */}
-        <button
-          className="sf-scan-btn"
-          onClick={() => navigate("/dashboard/scan")}
-        >
-          <FaQrcode />
-          <span>Scan</span>
+        <button className="sf-scan-btn" onClick={() => navigate("/dashboard/scan")}>
+          <FaQrcode /> <span>Scan</span>
         </button>
-
-        {/* Notification Bell */}
-        <div className="sf-notification-wrapper">
-          <button
-            className="sf-icon-btn"
-            onClick={() => setShowNotifications(!showNotifications)}
-          >
-            <FaBell />
-          </button>
-          {showNotifications && (
-            <div className="sf-notification-dropdown">
-              {notifications.map((note, i) => (
-                <div key={i} className="sf-notification-item">
-                  {note}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Profile Button */}
-        <button
-          className="sf-icon-btn"
-          onClick={() => navigate("/dashboard/userprofile")}
-        >
+        <button className="sf-scan-btn" onClick={() => navigate("/dashboard/history")}>
+          <FaQrcode /> <span>ViewHistory</span>
+        </button>
+        <button className="sf-icon-btn" onClick={() => navigate("/dashboard/userprofile")}>
           <FaUser />
         </button>
-
-        {/* Dark Mode Toggle */}
         <button className="sf-icon-btn" onClick={toggleDarkMode}>
           {darkMode ? <FaSun /> : <FaMoon />}
         </button>
-
-        {/* Mobile Menu */}
-        <div className="sf-menu-icon" onClick={() => setShowMenu(!showMenu)}>
-          <FaBars />
-        </div>
       </div>
     </nav>
   );
 }
-
 export default Navbar;

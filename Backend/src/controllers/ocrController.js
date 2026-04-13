@@ -1,8 +1,12 @@
-// Backend/src/controllers/ocrController.js
 const axios = require("axios");
 const FormData = require("form-data");
-const pool = require("../config/db"); // ✅ MySQL connection pool
-const fs = require("fs");
+const pool = require("../config/db");
+
+const {
+  calculateHealthScore,
+  getFoodSuggestion,
+  getNutrientAdvice,
+} = require("../utils/health_score");
 
 exports.uploadImage = async (req, res) => {
   try {
@@ -10,7 +14,7 @@ exports.uploadImage = async (req, res) => {
 
     const file = req.file;
     const barcode = req.body.barcode?.trim() || null;
-    const userId = req.user?.id || 1; // fallback for local testing
+    const userId = req.user?.id || 1;
 
     if (!file && !barcode) {
       return res.status(400).json({ error: "No image or barcode provided" });
@@ -18,9 +22,8 @@ exports.uploadImage = async (req, res) => {
 
     let productData = null;
 
-    // 🟢 STEP 1: Try OpenFoodFacts using barcode
+    // 🟢 STEP 1: OpenFoodFacts API
     if (barcode) {
-      console.log(`🔍 Checking OpenFoodFacts for barcode: ${barcode}`);
       try {
         const offRes = await axios.get(
           `https://world.openfoodfacts.org/api/v0/product/${barcode}.json`
@@ -28,6 +31,7 @@ exports.uploadImage = async (req, res) => {
 
         if (offRes.data.status === 1) {
           const p = offRes.data.product;
+
           productData = {
             name: p.product_name || "Unknown Product",
             barcode,
@@ -36,94 +40,135 @@ exports.uploadImage = async (req, res) => {
             protein: p.nutriments["proteins_100g"] || 0,
             carbs: p.nutriments["carbohydrates_100g"] || 0,
             fat: p.nutriments["fat_100g"] || 0,
-            fiber: p.nutriments["fiber_100g"] || 0,
             sodium: p.nutriments["sodium_100g"] || 0,
-            cholesterol: p.nutriments["cholesterol_100g"] || 0,
-            calcium: p.nutriments["calcium_100g"] || 0,
-            iron: p.nutriments["iron_100g"] || 0,
-            vitamin_c: p.nutriments["vitamin-c_100g"] || 0,
+            ingredients_text: p.ingredients_text || "",
             source: "OpenFoodFacts",
           };
-
-          console.log(
-            "✅ Product found in OpenFoodFacts with nutrients:",
-            productData
-          );
-          console.log(
-            "🧾 Ingredients received from OCR/Flask:",
-            productData.ingredients
-          );
-        } else {
-          console.log(
-            "⚠️ Product not found in OpenFoodFacts, moving to OCR..."
-          );
         }
-      } catch (apiErr) {
-        console.log("❌ OpenFoodFacts API error:", apiErr.message);
+      } catch (err) {
+        console.log("❌ OFF API error:", err.message);
       }
     }
 
-    // 🟠 STEP 2: If not found → OCR microservice
+    // 🟠 STEP 2: OCR fallback
     if (!productData) {
-      console.log("📸 Sending image to Flask OCR microservice...");
       const formData = new FormData();
-      if (file)
-        formData.append("image", file.buffer, { filename: "upload.jpg" });
-      if (barcode) formData.append("barcode", barcode);
+
+      if (file) {
+        formData.append("image", file.buffer, {
+          filename: "upload.jpg",
+        });
+      }
+
+      if (barcode) {
+        formData.append("barcode", barcode);
+      }
 
       const flaskRes = await axios.post(
         "http://127.0.0.1:5001/extract",
         formData,
-        {
-          headers: formData.getHeaders(),
-        }
+        { headers: formData.getHeaders() }
       );
 
       const data = flaskRes.data;
-      console.log("📦 Flask OCR Response:", data);
 
       productData = {
         name: data.product?.name || "Unknown Product",
         barcode: barcode || data.barcodes?.[0]?.data || null,
-        calories: data.nutrition?.Calories || data.nutrition?.calories || 0,
-        sugar: data.nutrition?.Sugar || data.nutrition?.sugar || 0,
-        protein: data.nutrition?.Protein || data.nutrition?.protein || 0,
-        carbs: data.nutrition?.Carbs || data.nutrition?.carbs || 0,
+        calories: data.nutrition?.calories || 0,
+        sugar: data.nutrition?.sugar || 0,
+        protein: data.nutrition?.protein || 0,
+        carbs: data.nutrition?.carbs || 0,
+        fat: data.nutrition?.fat || 0,
+        sodium: data.nutrition?.sodium || 0,
         brand: data.product?.brand || "Unknown",
-        image_url: null,
         ingredients_text: data.text || "",
         source: "OCR",
       };
     }
 
-    // 🟣 STEP 3: Save data (depending on admin/user)
-    let insertProd = null;
+    // 🔵 STEP 3: USER PROFILE
+    const [[userProfile]] = await pool.query(
+      "SELECT age, health_condition, goal FROM users WHERE id = ?",
+      [userId]
+    );
 
-    if (req.user.role === "admin") {
-      const [result] = await pool.query(
-        `INSERT INTO products (name, barcode, calories, carbs, sugar, protein, brand, image_url, ingredients_text)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          productData.name,
-          productData.barcode,
-          productData.calories,
-          productData.carbs,
-          productData.sugar,
-          productData.protein,
-          productData.brand,
-          productData.image_url,
-          productData.ingredients_text,
-        ]
-      );
-      insertProd = result.insertId;
-      console.log("✅ Product inserted into products table:", insertProd);
+    const userAge = userProfile?.age || 25;
+    const healthCond = userProfile?.health_condition || "none";
+    const userGoal = userProfile?.goal || "maintenance";
+
+    // 🔴 STEP 4: ALERT SYSTEM (PEHLE YE HOGA)
+    const alerts = [];
+    let healthRisk = "Low";
+    let riskColor = "#10b981";
+
+    const additives =
+      /preservative|artificial|flavor|E[0-9]{3}|additive|colorant|emulsifier/i;
+
+    if (additives.test(productData.ingredients_text)) {
+      alerts.push({
+        type: "ULTRA_PROCESSED",
+        message: "🚨 Ultra-Processed Food detected",
+      });
+      healthRisk = "Medium";
+      riskColor = "#f59e0b";
     }
 
-    // 🟤 STEP 4: Always save in user_logs
+    let sugarLimit = 20;
+    if (healthCond === "diabetes") sugarLimit = 5;
+
+    if (productData.sugar > sugarLimit) {
+      alerts.push({
+        type: "HIGH_SUGAR",
+        message: `⚠ High Sugar (> ${sugarLimit}g)`,
+      });
+      healthRisk = "High";
+      riskColor = "#ef4444";
+    }
+
+    if (
+      productData.sodium > 600 ||
+      (healthCond === "hypertension" && productData.sodium > 300)
+    ) {
+      alerts.push({
+        type: "HIGH_SODIUM",
+        message: "🧂 High Sodium detected",
+      });
+    }
+
+    if (userGoal === "muscle_gain" && productData.protein < 5) {
+      alerts.push({
+        type: "LOW_PROTEIN",
+        message: "💪 Low Protein",
+      });
+    }
+
+    if (userGoal === "weight_loss" && productData.calories > 300) {
+      alerts.push({
+        type: "HIGH_CALORIES",
+        message: "🏃 High calories for weight loss",
+      });
+    }
+
+    // 🔥 STEP 5: HEALTH SCORE (ALERTS KE BAAD)
+    const health_score = calculateHealthScore(
+      productData,
+      {
+        age: userAge,
+        health_conditions:
+          healthCond === "none" ? [] : [healthCond],
+      },
+      { alerts }
+    );
+
+    const suggestion = getFoodSuggestion(health_score);
+    const adviceList = getNutrientAdvice(productData);
+
+    // 💾 STEP 6: DB INSERT
     await pool.query(
       `INSERT INTO user_logs 
-  (user_id, product_name, calories, sugar, protein, date, barcode, fat, carbs, fiber, sodium, cholesterol, calcium, iron, vitamin_c)
-  VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (user_id, product_name, calories, sugar, protein, date, barcode, fat, carbs, sodium, health_score)
+      VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?)`,
       [
         userId,
         productData.name,
@@ -131,37 +176,26 @@ exports.uploadImage = async (req, res) => {
         productData.sugar,
         productData.protein,
         productData.barcode,
-        productData.fat || 0,
-        productData.carbs || 0,
-        productData.fiber || 0,
-        productData.sodium || 0,
-        productData.cholesterol || 0,
-        productData.calcium || 0,
-        productData.iron || 0,
-        productData.vitamin_c || 0,
+        productData.fat,
+        productData.carbs,
+        productData.sodium,
+        health_score
       ]
     );
-    console.log(`✅ Log saved for user ${userId} - ${productData.name}`);
 
-    // 🔴 STEP 5: Create alerts
-    const alerts = [];
-    if (productData.sugar > 22)
-      alerts.push({ type: "HIGH_SUGAR", message: "High sugar content" });
-    if (productData.calories > 300)
-      alerts.push({ type: "HIGH_CALORIES", message: "High calorie content" });
-    if (!productData.barcode)
-      alerts.push({ type: "NO_BARCODE", message: "Barcode missing" });
-
-    // 🟢 STEP 6: Send Final Response
+    // 🟢 STEP 7: RESPONSE
     res.status(200).json({
-      message: "Product processed successfully",
-      source: productData.source,
       product: productData,
-      inserted_product_id: insertProd || null,
+      health_score,
+      suggestion,
+      adviceList,
       alerts,
+      healthRisk,
+      riskColor,
     });
+
   } catch (err) {
-    console.error("❌ Error in uploadImage:", err.message);
+    console.error("❌ OCR Error:", err.message);
     res.status(500).json({
       error: "Internal server error",
       details: err.message,

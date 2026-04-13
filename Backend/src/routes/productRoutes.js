@@ -18,7 +18,8 @@ router.post("/add", verifyToken, verifyAdmin, addProducts); // only admin add pr
 router.delete("/delete", verifyToken, verifyAdmin, deleteIncompleteProducts); // only admin delete all products
 router.get("/search", searchProducts);
 router.get("/filter", filterProducts);
-router.get("/:id", verifyToken, getProductById); //user + admin both
+router.get("/:id",  verifyToken, getProductById); //user + admin both
 router.delete("/:id", verifyToken, verifyAdmin, deleteProductById);
+
 
 module.exports = router;

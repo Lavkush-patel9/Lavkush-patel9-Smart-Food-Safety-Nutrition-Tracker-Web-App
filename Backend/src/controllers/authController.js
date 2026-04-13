@@ -2,11 +2,12 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const pool = require("../config/db");
 
-const ADMIN_SECRET = process.env.ADMIN_SECRET || "myAdmin@123"; // keep consistent
+const ADMIN_SECRET = process.env.ADMIN_SECRET || "myAdmin@123";
 
 // 🟢 Signup Controller
 exports.signup = async (req, res) => {
-  const { username, email, password, role, secretKey } = req.body;
+  // ✅ age और health_condition को destructuring में जोड़ा
+  const { username, email, password, role, secretKey, age, health_condition,height, weight, goal } = req.body;
 
   try {
     let finalRole = "user";
@@ -29,9 +30,10 @@ exports.signup = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     console.log("🧩 Signup: Hashed Password =", hashedPassword);
 
+    // ✅ SQL Query में age और health_condition को शामिल किया
     await pool.query(
-      "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)",
-      [username, email, hashedPassword, finalRole]
+      "INSERT INTO users (username, email, password, role, age, health_condition, height, weight, goal) VALUES (?, ?, ?, ?, ?, ?)",
+      [username, email, hashedPassword, finalRole, age || 25, health_condition || 'none', height || 165, weight || 65, goal || 'maintenance']
     );
 
     console.log(`✅ ${finalRole.toUpperCase()} registered: ${email}`);
@@ -42,13 +44,12 @@ exports.signup = async (req, res) => {
   }
 };
 
-// 🟡 Login Controller
+// 🟡 Login Controller (इसे पहले जैसा ही रहने दिया)
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
     console.log("\n----------------------");
     console.log("🔐 Login attempt for:", email);
-    console.log("🔹 Password received:", password);
 
     const [rows] = await pool.query("SELECT * FROM users WHERE email = ?", [
       email,
@@ -60,17 +61,12 @@ exports.login = async (req, res) => {
     }
 
     const user = rows[0];
-    console.log("✅ User found:", user.email);
-    console.log("🔹 Stored hash (first 50 chars):", user.password.slice(0, 50));
-    console.log("🔹 Hash length:", user.password.length);
 
     // ✅ Compare hashed password
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log("🔍 bcrypt.compare() result:", isMatch);
 
     if (!isMatch) {
       console.log("❌ Invalid password for:", email);
-      console.log("----------------------\n");
       return res.status(401).json({ message: "Invalid password" });
     }
 
@@ -78,16 +74,11 @@ exports.login = async (req, res) => {
     const token = jwt.sign(
       { id: user.id, role: user.role },
       process.env.JWT_SECRET,
-      {
-        expiresIn: "7d",
-      }
+      { expiresIn: "7d" }
     );
 
     console.log("✅ Login successful for:", user.email);
-    console.log("✅ Role:", user.role);
-    console.log("----------------------\n");
 
-    // ✅ Send response with role
     res.json({
       message: "Login successful",
       token,

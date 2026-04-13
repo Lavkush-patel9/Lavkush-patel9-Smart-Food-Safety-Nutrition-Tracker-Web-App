@@ -28,16 +28,28 @@ export default function AdminProducts() {
         <thead>
           <tr style={{ background: "#f3f3f3" }}>
             <th style={thStyle}>Name</th>
-            <th style={thStyle}>Brand</th>
+            <th style={thStyle}>Barcode</th>
             <th style={thStyle}>Calories</th>
+            <th style={thStyle}>Carbs</th>
+            <th style={thStyle}>Sugar</th>
+            <th style={thStyle}>Protein</th>
+            <th style={thStyle}>Fat</th>
+            <th style={thStyle}>Image_url</th>
+            <th style={thStyle}>Ingredient</th>
           </tr>
         </thead>
         <tbody>
           {products.map((p) => (
             <tr key={p.id}>
               <td style={tdStyle}>{p.name}</td>
-              <td style={tdStyle}>{p.brand}</td>
+              <td style={tdStyle}>{p.barcode}</td>
               <td style={tdStyle}>{p.calories}</td>
+              <td style={tdStyle}>{p.carbs}</td>
+              <td style={tdStyle}>{p.sugar}</td>
+              <td style={tdStyle}>{p.protein}</td>
+              <td style={tdStyle}>{p.fat}</td>
+              <td style={tdStyle}>{p.image_url}</td>
+              <td style={tdStyle}>{p.ingredients_text}</td>
             </tr>
           ))}
         </tbody>

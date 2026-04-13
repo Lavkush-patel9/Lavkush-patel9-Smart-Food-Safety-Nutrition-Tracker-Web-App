@@ -1,37 +1,94 @@
-// frontend/src/pages/admin/AdminProfile.jsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 const AdminProfile = () => {
-  const [admin, setAdmin] = useState({});
+  const [admin, setAdmin] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
-    const token = localStorage.getItem("adminToken");
+    const fetchAdminProfile = async () => {
+      try {
+        setLoading(true);
 
-    axios
-      .get("http://localhost:5000/api/admin/profile", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((res) => setAdmin(res.data))
-      .catch((err) => console.error(err));
-  }, []);
+        const res = await axios.get(
+          "http://127.0.0.1:5000/api/adminpro/profile",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        setAdmin(res.data.data);
+      } catch (err) {
+        console.error("Admin Profile Fetch Error:", err);
+        setError("Failed to load admin profile");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAdminProfile();
+  }, [token]);
+
+  // Loading UI
+  if (loading) {
+    return (
+      <div style={styles.center}>
+        <h3>Loading Admin Profile...</h3>
+      </div>
+    );
+  }
+
+  // Error UI
+  if (error) {
+    return (
+      <div style={styles.center}>
+        <h3 style={{ color: "red" }}>{error}</h3>
+      </div>
+    );
+  }
+
+  // Empty state
+  if (!admin) {
+    return (
+      <div style={styles.center}>
+        <h3>No Admin Data Found</h3>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold text-blue-700 mb-6">Admin Profile</h1>
+    <div style={styles.container}>
+      <div style={styles.card}>
+        {/* Avatar */}
+        <div style={styles.avatar}>
+          {admin.name ? admin.name.charAt(0).toUpperCase() : "A"}
+        </div>
 
-      <div className="bg-white shadow-lg rounded-2xl p-6">
-        <h2 className="text-xl font-semibold">{admin.name}</h2>
-        <p className="text-gray-600">{admin.email}</p>
-        <p className="text-gray-500 text-sm">
-          Joined:{" "}
-          {admin.created_at && new Date(admin.created_at).toLocaleDateString()}
-        </p>
+        {/* Name */}
+        <h2 style={styles.name}>{admin.name || admin.username || "Admin"}</h2>
 
-        <div className="mt-4">
-          <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
-            Edit Profile
-          </button>
+        {/* Email */}
+        <p style={styles.email}>{admin.email || "No Email Found"}</p>
+
+        {/* Details */}
+        <div style={styles.infoBox}>
+          <p>
+            <b>Role:</b> {admin.role || "Admin"}
+          </p>
+          <p>
+            <b>User ID:</b> {admin.id || "N/A"}
+          </p>
+          <p>
+            <b>Joined:</b>{" "}
+            {admin.created_at
+              ? new Date(admin.created_at).toLocaleDateString()
+              : "N/A"}
+          </p>
         </div>
       </div>
     </div>
@@ -39,3 +96,57 @@ const AdminProfile = () => {
 };
 
 export default AdminProfile;
+
+/* ================= STYLES ================= */
+
+const styles = {
+  container: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "85vh",
+    background: "#f5f6fa",
+  },
+  center: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "85vh",
+    fontSize: 18,
+  },
+  card: {
+    width: 360,
+    padding: 25,
+    borderRadius: 12,
+    background: "#fff",
+    boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
+    textAlign: "center",
+  },
+  avatar: {
+    width: 80,
+    height: 80,
+    borderRadius: "50%",
+    background: "#3498db",
+    color: "#fff",
+    fontSize: 32,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    margin: "0 auto 10px",
+    fontWeight: "bold",
+  },
+  name: {
+    margin: "10px 0 5px",
+  },
+  email: {
+    color: "#555",
+    marginBottom: 15,
+  },
+  infoBox: {
+    textAlign: "left",
+    fontSize: 14,
+    lineHeight: 1.8,
+    borderTop: "1px solid #eee",
+    paddingTop: 10,
+  },
+};
