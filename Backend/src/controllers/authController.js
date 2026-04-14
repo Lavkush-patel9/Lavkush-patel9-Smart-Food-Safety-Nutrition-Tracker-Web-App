@@ -32,7 +32,7 @@ exports.signup = async (req, res) => {
 
     // ✅ SQL Query में age और health_condition को शामिल किया
     await pool.query(
-      "INSERT INTO users (username, email, password, role, age, health_condition, height, weight, goal) VALUES (?, ?, ?, ?, ?, ?)",
+      "INSERT INTO users (username, email, password, role, age, health_condition, height, weight, goal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [username, email, hashedPassword, finalRole, age || 25, health_condition || 'none', height || 165, weight || 65, goal || 'maintenance']
     );
 

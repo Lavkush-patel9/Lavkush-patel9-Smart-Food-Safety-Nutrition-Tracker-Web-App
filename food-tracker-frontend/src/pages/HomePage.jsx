@@ -23,8 +23,16 @@ const HomePage = () => {
               <a href="#features">Features</a>
             </li>
             <li>
-              <a onClick={() => navigate("/contact")}
-            style={{ cursor: "pointer" }}>Contact</a>
+              <span
+                onClick={() => navigate("/contact")}
+                style={{
+                  cursor: "pointer",
+                  color: "#00bcd4", // 👈 color added
+                  fontWeight: "500",
+                }}
+              >
+                Contact
+              </span>
             </li>
             <li>
               <button className="login-btn" onClick={() => navigate("/login")}>

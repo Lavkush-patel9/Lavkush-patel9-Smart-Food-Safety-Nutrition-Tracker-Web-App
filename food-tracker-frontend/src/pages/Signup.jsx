@@ -8,9 +8,12 @@ function Signup() {
   const [username, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("user"); 
-  const [secretKey, setSecretKey] = useState(""); 
+  const [role, setRole] = useState("user");
+  const [secretKey, setSecretKey] = useState("");
   const [error, setError] = useState("");
+  const [height, setHeight] = useState("");
+  const [weight, setWeight] = useState("");
+  const [goal, setGoal] = useState("");
 
   // ✅ New Personalized States
   const [age, setAge] = useState("");
@@ -26,8 +29,11 @@ function Signup() {
         email,
         password,
         role,
-        age: parseInt(age), // Ensure it's a number
+        age: parseInt(age),
         health_condition: healthCondition,
+        height: parseFloat(height),
+        weight: parseFloat(weight),
+        goal,
         secretKey: role === "admin" ? secretKey : undefined,
       });
 
@@ -61,7 +67,8 @@ function Signup() {
           onChange={(e) => setName(e.target.value)}
           required
         />
-        <br /><br />
+        <br />
+        <br />
 
         <input
           type="email"
@@ -70,7 +77,8 @@ function Signup() {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-        <br /><br />
+        <br />
+        <br />
 
         <input
           type="password"
@@ -79,7 +87,8 @@ function Signup() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <br /><br />
+        <br />
+        <br />
 
         {/* ✅ New Age Field */}
         <label>Age: </label>
@@ -90,18 +99,53 @@ function Signup() {
           onChange={(e) => setAge(e.target.value)}
           required
         />
-        <br /><br />
+        <br />
+        <br />
+        <input
+          type="number"
+          placeholder="Height (cm)"
+          value={height}
+          onChange={(e) => setHeight(e.target.value)}
+        />
+
+        <br />
+        <br />
+
+        <input
+          type="number"
+          placeholder="Weight (kg)"
+          value={weight}
+          onChange={(e) => setWeight(e.target.value)}
+        />
+
+        <br />
+        <br />
+
+        <label>Goal: </label>
+        <select value={goal} onChange={(e) => setGoal(e.target.value)}>
+          <option value="">Select Goal</option>
+          <option value="weight_loss">Weight Loss</option>
+          <option value="muscle_gain">Muscle Gain</option>
+          <option value="maintenance">Maintenance</option>
+        </select>
+
+        <br />
+        <br />
 
         {/* ✅ New Health Condition Dropdown */}
         <label>Health Condition: </label>
-        <select value={healthCondition} onChange={(e) => setCondition(e.target.value)}>
+        <select
+          value={healthCondition}
+          onChange={(e) => setCondition(e.target.value)}
+        >
           <option value="none">Normal (No Health Issues)</option>
           <option value="diabetic">Diabetes (Sugar Patient)</option>
           <option value="high_bp">High Blood Pressure (BP)</option>
           <option value="weight_loss">Focus on Weight Loss</option>
           <option value="kidney_patient">Kidney Issues</option>
         </select>
-        <br /><br />
+        <br />
+        <br />
 
         {/* ✅ Role Dropdown */}
         <label>Select Role: </label>
@@ -109,7 +153,8 @@ function Signup() {
           <option value="user">User</option>
           <option value="admin">Admin</option>
         </select>
-        <br /><br />
+        <br />
+        <br />
 
         {/* ✅ Secret Key Field (Only for Admin) */}
         {role === "admin" && (
@@ -121,7 +166,8 @@ function Signup() {
               onChange={(e) => setSecretKey(e.target.value)}
               required
             />
-            <br /><br />
+            <br />
+            <br />
           </>
         )}
 
