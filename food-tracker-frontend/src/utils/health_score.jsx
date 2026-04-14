@@ -91,12 +91,12 @@ export function calculateHealthScore(nutrients, userProfile = {}, result = {}) {
 
 export function getFoodSuggestion(score) {
   if (score >= 80) {
-    return { text: "✅ Safe to Eat", color: "green" };
+    return { text: "✅ Safe to Eat", color: "green" , message: "this is good to eat"};
   }
   if (score >= 60) {
-    return { text: "⚠ Eat in Moderation", color: "orange" };
+    return { text: "⚠ Eat in Moderation", color: "orange" , message: "this not for daily eat"};
   }
-  return { text: "❌ Avoid This Food", color: "red" };
+  return { text: "❌ Avoid This Food", color: "red" , message: "avoid this is harmfull for health"};
 }
 
 // -------------------- NUTRIENT ADVICE --------------------

@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
 } from "recharts";
 import { useNavigate } from "react-router-dom";
 import "./UserDashboard.css";
@@ -20,9 +26,13 @@ const UserDashboard = () => {
     if (!token) return navigate("/login");
 
     // 1. Fetch Profile
-    axios.get("https://lavkush-patel9-smart-food-safety-wd7y.onrender.com/api/user/profile/", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    axios
+      .get(
+        "https://lavkush-patel9-smart-food-safety-wd7y.onrender.com/api/user/profile/",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      )
       .then((res) => {
         // ✅ Array का पहला ऑब्जेक्ट निकालें अगर Backend से Array आ रहा है
         const data = Array.isArray(res.data) ? res.data[0] : res.data;
@@ -31,16 +41,24 @@ const UserDashboard = () => {
       .catch((err) => console.error("Profile fetch error:", err));
 
     // 2. Fetch Logs & Stats
-    axios.get("https://lavkush-patel9-smart-food-safety-wd7y.onrender.com/api/logs/all", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    axios
+      .get(
+        "https://lavkush-patel9-smart-food-safety-wd7y.onrender.com/api/logs/all",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      )
       .then((res) => {
         const data = res.data;
         setLogs(data);
 
         if (data.length > 0) {
           const totalScans = data.length;
-          const avg = (f) => (data.reduce((sum, i) => sum + (parseFloat(i[f]) || 0), 0) / totalScans).toFixed(1);
+          const avg = (f) =>
+            (
+              data.reduce((sum, i) => sum + (parseFloat(i[f]) || 0), 0) /
+              totalScans
+            ).toFixed(1);
 
           const currentStats = {
             totalScans,
@@ -66,43 +84,58 @@ const UserDashboard = () => {
 
   // ✅ NEW: Personalized Insight Feature (यही वो फीचर है जो आपने माँगा है)
   useEffect(() => {
-    if (logs.length > 0 && (user.age || user.health_condition)) {
+    if (
+      logs.length > 0 &&
+      (user.age || user.health_condition || user.health_conditions) &&
+      stats.totalScans
+    ) {
       const age = parseInt(user.age) || 25;
-      const condition = user.health_condition || "none";
+      const condition = Array.isArray(user.health_conditions)
+        ? user.health_conditions[0]
+        : user.health_condition || "none";
       const { avgSugar, avgSodium, avgProtein, avgCalories } = stats;
-      
+
       let tips = [];
 
       // 🍬 Sugar/Diabetes Logic
-      if (condition === 'diabetic') {
-        if (parseFloat(avgSugar) > 10) tips.push("🚨 DIABETES WARNING: आपकी शुगर (10g) से बहुत ज़्यादा है।");
+      if (condition === "diabetic") {
+        if (parseFloat(avgSugar) > 10)
+          tips.push("🚨 DIABETES WARNING: आपकी शुगर (10g) से बहुत ज़्यादा है।");
       } else if (parseFloat(avgSugar) > 30) {
         tips.push("⚠️ HIGH SUGAR: मीठा कम करने की ज़रूरत है।");
       }
 
       // 🧂 BP Logic
-      if (condition === 'high_bp' && parseFloat(avgSodium) > 1500) {
+      if (condition === "high_bp" && parseFloat(avgSodium) > 1500) {
         tips.push("🧂 BP ALERT: नमक की मात्रा कम करें और पानी ज़्यादा पिएं।");
       }
 
       // 💪 Protein/Age Logic
       if (age > 60 && parseFloat(avgProtein) < 15) {
-        tips.push("👴 SENIOR HEALTH: हड्डियों और मांसपेशियों के लिए प्रोटीन बढ़ाएं।");
+        tips.push(
+          "👴 SENIOR HEALTH: हड्डियों और मांसपेशियों के लिए प्रोटीन बढ़ाएं।",
+        );
       } else if (parseFloat(avgProtein) < 10) {
         tips.push("💪 प्रोटीन बढ़ाएं — अंडे, दालें या पनीर जोड़ें।");
       }
 
       // 🔥 Calorie Logic
       if (age > 50 && parseFloat(avgCalories) > 1800) {
-        tips.push("🍽️ AGE FACTOR: इस उम्र में हल्की कैलोरी और सुपाच्य भोजन लें।");
+        tips.push(
+          "🍽️ AGE FACTOR: इस उम्र में हल्की कैलोरी और सुपाच्य भोजन लें।",
+        );
       }
 
-      setInsight(tips.length > 0 ? tips.join(" | ") : "✅ आपकी प्रोफाइल के अनुसार डाइट संतुलित है।");
+      setInsight(
+        tips.length > 0
+          ? tips.join(" | ")
+          : "✅ आपकी प्रोफाइल के अनुसार डाइट संतुलित है।",
+      );
     }
   }, [logs, user, stats]);
 
   const filteredLogs = logs.filter((log) =>
-    log.product_name?.toLowerCase().includes(search.toLowerCase())
+    log.product_name?.toLowerCase().includes(search.toLowerCase()),
   );
 
   const chartData = [
@@ -116,22 +149,47 @@ const UserDashboard = () => {
   return (
     <div className="dashboard-container">
       <div className="Homebar">
-        <h1 className="welcome-text">👋 Welcome, {user.name || user.username || "User"}!</h1>
-        <p className="subtitle">Profile: <b>{user.health_condition || "Normal"}</b> | Age: <b>{user.age || "N/A"}</b></p>
+        <h1 className="welcome-text">
+          👋 Welcome, {user.name || user.username || "User"}!
+        </h1>
+        <p className="subtitle">
+          Profile: <b>{user.health_condition || "Normal"}</b> | Age:{" "}
+          <b>{user.age || "N/A"}</b>
+        </p>
       </div>
 
       <div className="stats-grid">
-        <div className="card blue"><h3>Total Scans</h3><p>{stats.totalScans || 0}</p></div>
-        <div className="card orange"><h3>Avg Calories</h3><p>{stats.avgCalories || 0}</p></div>
-        <div className="card green"><h3>Avg Sugar</h3><p>{stats.avgSugar || 0}g</p></div>
-        <div className="card purple"><h3>Avg Protein</h3><p>{stats.avgProtein || 0}g</p></div>
+        <div className="card blue">
+          <h3>Total Scans</h3>
+          <p>{stats.totalScans || 0}</p>
+        </div>
+        <div className="card orange">
+          <h3>Avg Calories</h3>
+          <p>{stats.avgCalories || 0}</p>
+        </div>
+        <div className="card green">
+          <h3>Avg Sugar</h3>
+          <p>{stats.avgSugar || 0}g</p>
+        </div>
+        <div className="card purple">
+          <h3>Avg Protein</h3>
+          <p>{stats.avgProtein || 0}g</p>
+        </div>
       </div>
 
       {insight && (
-        <div className="insight-box" style={{ 
-          background: '#fff5f5', borderLeft: '6px solid #e53e3e', padding: '15px', 
-          margin: '20px 0', borderRadius: '10px', color: '#c53030', fontWeight: 'bold' 
-        }}>
+        <div
+          className="insight-box"
+          style={{
+            background: "#fff5f5",
+            borderLeft: "6px solid #e53e3e",
+            padding: "15px",
+            margin: "20px 0",
+            borderRadius: "10px",
+            color: "#c53030",
+            fontWeight: "bold",
+          }}
+        >
           {insight}
         </div>
       )}
@@ -154,7 +212,13 @@ const UserDashboard = () => {
         <div className="table-container">
           <table className="scan-table">
             <thead>
-              <tr><th>Product</th><th>Calories</th><th>Sugar (g)</th><th>Protein (g)</th><th>Date</th></tr>
+              <tr>
+                <th>Product</th>
+                <th>Calories</th>
+                <th>Sugar (g)</th>
+                <th>Protein (g)</th>
+                <th>Date</th>
+              </tr>
             </thead>
             <tbody>
               {filteredLogs.slice(0, 5).map((log, i) => (

@@ -75,7 +75,7 @@ function ScanPage() {
       console.error("❌ Upload Error:", err);
       setError(
         err.response?.data?.error ||
-          "Failed to fetch. Please check backend and image quality."
+          "Failed to fetch. Please check backend and image quality.",
       );
     } finally {
       setLoading(false);
@@ -95,7 +95,7 @@ function ScanPage() {
   // 🔹 Daily recommended limits
   const nutrientLimits = {
     Calories: 2000,
-    Sugar: 50,
+    Sugar: 25,
     Protein: 60,
     Fat: 70,
     Carbs: 300,
@@ -104,23 +104,35 @@ function ScanPage() {
     Cholesterol: 300,
     Calcium: 1000,
     Iron: 18,
-    VitaminC: 90,
+    
   };
 
-  // 🔹 NEW: Dynamic Limits based on user condition
+  // dynamic limit of nutrition based on condition
   const getDynamicLimits = () => {
     let limits = { ...nutrientLimits };
 
-    if (userProfile?.health_conditions) {
-      const conditions = userProfile.health_conditions;
+    const conditions = userProfile?.health_conditions || [];
 
-      if (conditions.includes("diabetes")) {
-        limits.Sugar = 25;
-      }
+    // 🧠 Diabetes → sugar strict
+    if (conditions.includes("diabetes")) {
+      limits.Sugar = 25;
+    }
 
-      if (conditions.includes("hypertension")) {
-        limits.Sodium = 1500;
-      }
+    // 🧂 BP → sodium strict
+    if (conditions.includes("hypertension")) {
+      limits.Sodium = 1500;
+    }
+
+    // ❤️ Heart → fat + cholesterol strict
+    if (conditions.includes("heart")) {
+      limits.Fat = 50;
+      limits.Cholesterol = 200;
+    }
+
+    // 👴 Age based tweak (optional but powerful)
+    if (userProfile?.age > 50) {
+      limits.Sodium *= 0.8;
+      limits.Calories *= 0.9;
     }
 
     return limits;
@@ -130,12 +142,19 @@ function ScanPage() {
 
   // 🔹 Status based on limit
   const getStatus = (key, value) => {
-    const limit = dynamicLimits[key];
-    if (!limit || isNaN(value)) return { text: "N/A", color: "gray" };
+    if (value == null || isNaN(value)) {
+      return { text: "N/A", color: "gray" };
+    }
+
+    const limit = dynamicLimits[key]; // ✅ IMPORTANT FIX
+
+    if (!limit) return { text: "Good ✅", color: "green" };
+
     const percent = (value / limit) * 100;
-    if (percent < 30) return { text: "Good", color: "green" };
-    if (percent < 70) return { text: "Moderate", color: "orange" };
-    return { text: "High", color: "red" };
+
+    if (percent < 50) return { text: "Good ✅", color: "green" };
+    if (percent < 80) return { text: "Moderate ⚠️", color: "orange" };
+    return { text: "High ❌", color: "red" };
   };
 
   // 🔹 Extract product info
@@ -159,26 +178,16 @@ function ScanPage() {
       cholesterol: parseFloat(p.cholesterol) || 0,
       calcium: parseFloat(p.calcium) || 0,
       iron: parseFloat(p.iron) || 0,
-      vitamin_c: parseFloat(p.vitamin_c) || 0,
+
     };
   };
 
   const product = getProductInfo();
 
   // 🔹 Personalized Health Score
-  // 🔥 FINAL HEALTH SCORE + SUGGESTION SYSTEM
-
-// // 🔥 FINAL HEALTH SCORE
-// const healthScore = product ? calculateHealthScore(product) : null;
-
-// // ✅ 🔥 FINAL SUGGESTION FUNCTION
-// const suggestion = healthScore !== null ? getFoodSuggestion(healthScore) : null;
-
-// // // ✅ 🔥 NUTRIENT BASED ADVICE
-// const adviceList = product ? getNutrientAdvice(product) : [];
-const healthScore = result?.health_score ?? null;
-const suggestion = result?.suggestion ?? null;
-const adviceList = result?.adviceList ?? [];
+  const healthScore = result?.health_score ?? null;
+  const suggestion = result?.suggestion ?? null;
+  const adviceList = result?.adviceList ?? [];
 
   // 🔹 UI
   return (
@@ -214,7 +223,7 @@ const adviceList = result?.adviceList ?? [];
         <div style={{ marginTop: 10 }}>
           <input
             type="text"
-            placeholder="Enter barcode manually (optional)"
+            placeholder="Enter barcode manually "
             value={barcode}
             onChange={(e) => setBarcode(e.target.value)}
             style={{
@@ -325,9 +334,7 @@ const adviceList = result?.adviceList ?? [];
           <p>
             <strong>Name:</strong> {product.name}
           </p>
-          {/* <p>
-            <strong>Brand:</strong> {product.brand}
-          </p> */}
+
           <p>
             <strong>Ingredients:</strong> {product.ingredients}
           </p>
@@ -348,19 +355,21 @@ const adviceList = result?.adviceList ?? [];
           >
             <thead>
               <tr>
-                {["Nutrient", "Value", "Daily Limit", "Status"].map((h) => (
-                  <th
-                    key={h}
-                    style={{
-                      border: "1px solid #ddd",
-                      padding: "10px",
-                      background: "#eff6ff",
-                      fontWeight: "600",
-                    }}
-                  >
-                    {h}
-                  </th>
-                ))}
+                {["Nutrient", "Value", "Daily Limit (g / mg)", "Status"].map(
+                  (h) => (
+                    <th
+                      key={h}
+                      style={{
+                        border: "1px solid #ddd",
+                        padding: "10px",
+                        background: "#eff6ff",
+                        fontWeight: "600",
+                      }}
+                    >
+                      {h}
+                    </th>
+                  ),
+                )}
               </tr>
             </thead>
             <tbody>
@@ -374,8 +383,7 @@ const adviceList = result?.adviceList ?? [];
                 "sodium",
                 "cholesterol",
                 "calcium",
-                "iron",
-                "vitamin_c",
+                "iron"
               ].map((key) => {
                 const label = key.charAt(0).toUpperCase() + key.slice(1);
                 const value = product[key];
@@ -423,8 +431,8 @@ const adviceList = result?.adviceList ?? [];
                   healthScore >= 80
                     ? "#16a34a"
                     : healthScore >= 60
-                    ? "#f59e0b"
-                    : "#dc2626",
+                      ? "#f59e0b"
+                      : "#dc2626",
                 fontWeight: "bold",
                 marginTop: "10px",
               }}
@@ -434,9 +442,17 @@ const adviceList = result?.adviceList ?? [];
           )}
           {/* ✅ 🔥 ADD THIS HERE */}
           {suggestion && (
-            <p style={{ color: suggestion.color, fontWeight: "bold" }}>
-              {suggestion.text}
-            </p>
+            <div>
+              <p style={{ color: suggestion.color, fontWeight: "bold" }}>
+                {suggestion.text}
+              </p>
+
+              {suggestion.message && (
+                <p style={{ color: "#555", fontSize: "14px" }}>
+                  {suggestion.message}
+                </p>
+              )}
+            </div>
           )}
 
           {/* ✅ 🔥 ADD THIS ALSO */}
