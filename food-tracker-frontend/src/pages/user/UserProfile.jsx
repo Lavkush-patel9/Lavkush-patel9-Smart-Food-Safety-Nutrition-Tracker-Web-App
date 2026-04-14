@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import "./UserProfile.css";
 import {
-  FaUser, FaEnvelope, FaLock, FaImage, FaTimes, FaBars, FaEdit, FaSave, FaBirthdayCake, FaHeartbeat,
+  FaUser, FaEnvelope, FaLock, FaImage, FaEdit, FaSave, FaBirthdayCake, FaHeartbeat,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import API from "../../services/api";

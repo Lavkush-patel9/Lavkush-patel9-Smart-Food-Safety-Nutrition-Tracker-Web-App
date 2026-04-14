@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaBell, FaMoon, FaSun, FaQrcode, FaUser } from "react-icons/fa";
+import { FaMoon, FaSun, FaQrcode, FaUser } from "react-icons/fa";
 import API from "../services/api"; // ✅ Axios service का इस्तेमाल करें
 import "./Navbar.css";
 
@@ -66,7 +66,7 @@ function Navbar() {
                 setSearchResults([]);
                 setSearchQuery("");
               }}>
-                {/* <img src={item.image_url || "https://placeholder.com"} alt={item.name} /> */}
+                
                 <span>{item.name}</span>
               </div>
             ))}

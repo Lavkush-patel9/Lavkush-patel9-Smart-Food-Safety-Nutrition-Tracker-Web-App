@@ -23,7 +23,8 @@ const HomePage = () => {
               <a href="#features">Features</a>
             </li>
             <li>
-              <a href="#contact">Contact</a>
+              <a onClick={() => navigate("/contact")}
+            style={{ cursor: "pointer" }}>Contact</a>
             </li>
             <li>
               <button className="login-btn" onClick={() => navigate("/login")}>

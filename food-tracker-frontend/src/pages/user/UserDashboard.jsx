@@ -10,9 +10,9 @@ const UserDashboard = () => {
   const [user, setUser] = useState({});
   const [logs, setLogs] = useState([]);
   const [stats, setStats] = useState({});
-  const [today, setToday] = useState({});
+  // const [today, setToday] = useState({});
   const [insight, setInsight] = useState("");
-  const [search, setSearch] = useState("");
+  const [search] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
