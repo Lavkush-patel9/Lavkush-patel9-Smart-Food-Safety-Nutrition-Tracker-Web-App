@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://127.0.0.1:5000/api"
+  baseURL: "https://lavkush-patel9-smart-food-safety-wd7y.onrender.com/api"
 });
 
 export default API;
