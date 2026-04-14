@@ -330,7 +330,7 @@ def extract():
             }
 
             # Replace this URL with your backend API URL
-            backend_url = "http://localhost:5000/api/logs/add"
+            backend_url = "https://lavkush-patel9-smart-food-safety-wd7y.onrender.com/api/logs/add"
             backend_response = requests.post(backend_url, json=save_payload)
             print("✅ Data sent to backend, status:", backend_response.status_code)
         else:

@@ -20,7 +20,7 @@ const UserDashboard = () => {
     if (!token) return navigate("/login");
 
     // 1. Fetch Profile
-    axios.get("http://localhost:5000/api/user/profile/", {
+    axios.get("https://lavkush-patel9-smart-food-safety-wd7y.onrender.com/api/user/profile/", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -31,7 +31,7 @@ const UserDashboard = () => {
       .catch((err) => console.error("Profile fetch error:", err));
 
     // 2. Fetch Logs & Stats
-    axios.get("http://localhost:5000/api/logs/all", {
+    axios.get("https://lavkush-patel9-smart-food-safety-wd7y.onrender.com/api/logs/all", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {

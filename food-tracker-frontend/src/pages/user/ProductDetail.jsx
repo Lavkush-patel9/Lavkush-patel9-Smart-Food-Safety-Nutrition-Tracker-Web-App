@@ -25,7 +25,7 @@ const ProductDetail = () => {
         const token = localStorage.getItem("token");
 
         const res = await axios.get(
-          `http://localhost:5000/api/products/${id}`,
+          `https://lavkush-patel9-smart-food-safety-wd7y.onrender.com/api/products/${id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
