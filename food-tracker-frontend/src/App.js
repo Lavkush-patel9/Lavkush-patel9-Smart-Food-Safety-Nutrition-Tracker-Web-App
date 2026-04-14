@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 // 🔹 Public Components
 import HomePage from "./pages/HomePage";
@@ -35,6 +36,7 @@ function App() {
   return (
     <BrowserRouter>
       <RoutesWrapper />
+      <SpeedInsights />
     </BrowserRouter>
   );
 }
