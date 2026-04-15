@@ -26,7 +26,7 @@ function UserHistory() {
   const fetchHistory = async () => {
     try {
       const res = await axios.get(
-        "http://127.0.0.1:5000/api/logs/all",
+        "https://lavkush-patel9-smart-food-safety-wd7y.onrender.com/api/logs/all",
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -75,7 +75,7 @@ function UserHistory() {
     try {
       await Promise.all(
         selectedIds.map((id) =>
-          axios.delete(`http://127.0.0.1:5000/api/logs/${id}`, {
+          axios.delete(`https://lavkush-patel9-smart-food-safety-wd7y.onrender.com/api/logs/${id}`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
@@ -96,7 +96,7 @@ function UserHistory() {
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(`http://127.0.0.1:5000/api/logs/${id}`, {
+      await axios.delete(`https://lavkush-patel9-smart-food-safety-wd7y.onrender.com/api/logs/${id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

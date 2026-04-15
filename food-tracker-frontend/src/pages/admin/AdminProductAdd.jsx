@@ -58,7 +58,7 @@ export default function AddProduct() {
 
     try {
       const res = await axios.post(
-        "http://127.0.0.1:5000/api/products/add",
+        "https://lavkush-patel9-smart-food-safety-wd7y.onrender.com/api/products/add",
         {
           name: form.name,
           barcode: form.barcode,

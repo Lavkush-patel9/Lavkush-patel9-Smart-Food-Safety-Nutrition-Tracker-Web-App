@@ -10,7 +10,7 @@ const AdminContact = () => {
   // 🔹 fetch messages
   const fetchMessages = async () => {
     try {
-      const res = await axios.get("http://127.0.0.1:5000/api/contact/all", {
+      const res = await axios.get("https://lavkush-patel9-smart-food-safety-wd7y.onrender.com/api/contact/all", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -30,7 +30,7 @@ const AdminContact = () => {
   const sendReply = async (id) => {
     try {
       await axios.post(
-        "http://127.0.0.1:5000/api/contact/reply",
+        "https://lavkush-patel9-smart-food-safety-wd7y.onrender.com/api/contact/reply",
         { id, reply: replyText },
         {
           headers: {

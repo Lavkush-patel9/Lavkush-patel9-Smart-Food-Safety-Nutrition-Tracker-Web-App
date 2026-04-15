@@ -17,7 +17,7 @@ function ScanPage() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get("http://127.0.0.1:5000/api/user/profile", {
+        const res = await axios.get("https://lavkush-patel9-smart-food-safety-wd7y.onrender.com/api/user/profile", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
@@ -56,7 +56,7 @@ function ScanPage() {
     if (barcode.trim() !== "") fd.append("barcode", barcode);
 
     try {
-      const res = await axios.post("http://127.0.0.1:5000/api/ocr/upload", fd, {
+      const res = await axios.post("https://lavkush-patel9-smart-food-safety-wd7y.onrender.com/api/ocr/upload", fd, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${localStorage.getItem("token")}`,

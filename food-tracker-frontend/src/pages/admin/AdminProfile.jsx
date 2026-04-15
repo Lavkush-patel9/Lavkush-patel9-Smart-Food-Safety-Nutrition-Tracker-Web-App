@@ -14,7 +14,7 @@ const AdminProfile = () => {
         setLoading(true);
 
         const res = await axios.get(
-          "http://127.0.0.1:5000/api/adminpro/profile",
+          "https://lavkush-patel9-smart-food-safety-wd7y.onrender.com/api/adminpro/profile",
           {
             headers: {
               Authorization: `Bearer ${token}`,

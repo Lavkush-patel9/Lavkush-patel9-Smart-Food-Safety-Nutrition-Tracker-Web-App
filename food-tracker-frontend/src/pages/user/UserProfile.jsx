@@ -127,7 +127,7 @@ const UserProfile = () => {
             src={
               user.profile_Image?.startsWith("blob")
                 ? user.profile_Image
-                : `http://127.0.0.1:5000${user.profile_Image}`
+                : `https://lavkush-patel9-smart-food-safety-wd7y.onrender.com${user.profile_Image}`
             }
             alt="Profile"
             style={{
